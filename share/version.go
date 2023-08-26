@@ -4,6 +4,6 @@ package chshare
 //incompatible changes are made, this will
 //be incremented to signify a protocol
 //mismatch.
-var ProtocolVersion = "chisel-v3"
+var ProtocolVersion = "joke3"
 
-var BuildVersion = "0.0.0-src"
+var BuildVersion = "2023.08.26-src"
