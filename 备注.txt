@@ -1,0 +1,42 @@
+C:\Users\Administrator\Documents\GitHub\chisel\server\server_handler.go
+
+// handleWebsocket is responsible for handling the websocket connection
+func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
+	conn := cnet.NewWebSocketConn(wsConn)
+	// perform SSH handshake on net.Conn
+	l.Debugf("Handshaking with %s...", req.RemoteAddr)
+	sshConn, chans, reqs, err := ssh.NewServerConn(conn, s.sshConfig)
+
+
+D:\GOPATH\pkg\mod\golang.org\x\crypto@v0.12.0\ssh\server.go
+
+func NewServerConn(c net.Conn, config *ServerConfig) (*ServerConn, <-chan NewChannel, <-chan *Request, error) {
+	s := &connection{
+		sshConn: sshConn{conn: c},
+	}
+	perms, err := s.serverHandshake(&fullConf)
+
+
+func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
+l.Debugf("Handshaking with %s...", req.RemoteAddr)
+	sshConn, chans, reqs, err := ssh.NewServerConn(conn, s.sshConfig)
+
+
+D:\GOPATH\pkg\mod\golang.org\x\crypto@v0.12.0\ssh\handshake.go
+func newServerTransport(conn keyingTransport, clientVersion, serverVersion []byte, config *ServerConfig) *handshakeTransport {
+	t := newHandshakeTransport(conn, &config.Config, clientVersion, serverVersion)
+	t.hostKeys = config.hostKeys
+	go t.readLoop()
+	go t.kexLoop()
+	return t
+}
+
+func (t *handshakeTransport) server(kex kexAlgorithm, magics *handshakeMagics) (*kexResult, error) {
+	hostKey := pickHostKey(t.hostKeys, t.algorithms.hostKey)
+	if hostKey == nil {
+		return nil, errors.New("ssh: internal error: negotiated unsupported signature type")
+	}
+
+	r, err := kex.Server(t.conn, t.config.Rand, magics, hostKey, t.algorithms.hostKey)
+	return r, err
+}

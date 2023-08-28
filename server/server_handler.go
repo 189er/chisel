@@ -132,6 +132,9 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		sshConn.Close()
 		return
 	}
+	fmt.Println("server_han go 135 line: " + string(r.Payload))
+	//{"Version":"2023.08.26-src","Remotes":[{"LocalHost":"0.0.0.0","LocalPort":"4080","LocalProto":"tcp","RemoteHost":"","RemotePort":"","RemoteProto":"tcp","Socks":true,"Reverse":false,"Stdio":false}]}
+
 	failed := func(err error) {
 		l.Debugf("Failed: %s", err)
 		r.Reply(false, []byte(err.Error()))
