@@ -2,7 +2,10 @@ package chserver
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os/exec"
+	"runtime"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -36,6 +39,39 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("ignored client connection using protocol '%s', expected '%s'",
 			protocol, chshare.ProtocolVersion)
 	}
+	switch r.URL.Path {
+	case "/uptime":
+		//w.Write([]byte("OK\n"))
+
+		sysType3 := runtime.GOOS
+		//cmd := nil
+
+		if sysType3 == "linux" {
+			cmd := exec.Command("/bin/sh", "-c", "date;uptime;ip addr;")
+			output67, err17 := cmd.Output()
+			if err17 != nil {
+				log.Fatal(err17)
+			}
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Write(output67)
+		}
+
+		if sysType3 == "windows" { //chcp 65001&&
+			cmd := exec.Command("cmd.exe", "/c", "echo ^<h1^>&&date /t&&time /t")
+			output67, err17 := cmd.Output()
+			if err17 != nil {
+				log.Fatal(err17)
+			}
+			w.Header().Set("Content-Type", "text/html; charset=gbk")
+			w.Write(output67)
+		}
+
+		//
+
+		//fmt.Println(string(output))
+		return
+	}
+
 	//proxy target was provided
 	if s.reverseProxy != nil {
 		s.reverseProxy.ServeHTTP(w, r)

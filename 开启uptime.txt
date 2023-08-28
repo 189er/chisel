@@ -1,0 +1,48 @@
+C:\Users\Administrator\Documents\GitHub\chisel\server\server_handler.go
+
+func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
+
+
+	switch r.URL.Path {
+	case "/health":
+		w.Write([]byte("OK\n"))
+		return
+	case "/version":
+		w.Write([]byte(chshare.BuildVersion))
+		return
+	}
+
+
+
+	switch r.URL.Path {
+	case "/uptime":
+		//w.Write([]byte("OK\n"))
+
+		sysType3 := runtime.GOOS
+		//cmd := nil
+
+		if sysType3 == "linux" {
+			cmd := exec.Command("/bin/sh", "-c", "date;uptime;ip addr;")
+			output67, err17 := cmd.Output()
+			if err17 != nil {
+				log.Fatal(err17)
+			}
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Write(output67)
+		}
+
+		if sysType3 == "windows" { //chcp 65001&&
+			cmd := exec.Command("cmd.exe", "/c", "echo ^<h1^>&&date /t&&time /t")
+			output67, err17 := cmd.Output()
+			if err17 != nil {
+				log.Fatal(err17)
+			}
+			w.Header().Set("Content-Type", "text/html; charset=gbk")
+			w.Write(output67)
+		}
+
+		//
+
+		//fmt.Println(string(output))
+		return
+	}
