@@ -1,0 +1,41 @@
+C:\Users\Administrator\Documents\GitHub\chisel\server\server.go
+
+
+	server.sshConfig = &ssh.ServerConfig{
+		ServerVersion:    "SSH-" + chshare.ProtocolVersion + "-S",
+		PasswordCallback: server.authUser,
+	}
+
+C:\Users\Administrator\Documents\GitHub\chisel\client\client.go
+	client.sshConfig = &ssh.ClientConfig{
+		User:            user,
+		Auth:            []ssh.AuthMethod{ssh.Password(pass)},
+		ClientVersion:   "S-" + chshare.ProtocolVersion + "-C",
+		HostKeyCallback: client.verifyServer,
+		Timeout:         settings.EnvDuration("SSH_TIMEOUT", 30*time.Second),
+	}
+
+string(versionString) 即时表达式求客户端版本号
+
+
+D:\GOPATH\pkg\mod\golang.org\x\crypto@v0.12.0\ssh\server.go
+func (s *connection) serverHandshake(config *ServerConfig) (*Permissions, error) {
+s.clientVersion, err = exchangeVersions(s.sshConn.conn, s.serverVersion)
+func exchangeVersions(rw io.ReadWriter, versionLine []byte) (them []byte, err error) {
+readVersion(rw)
+D:\GOPATH\pkg\mod\golang.org\x\crypto@v0.12.0\ssh\transport.go
+func readVersion(r io.Reader) ([]byte, error) {
+
+
+注释掉这些
+
+bytes.Runes([]byte("AABB"))
+/*			if !bytes.HasPrefix(versionString, []byte("SSH-")) {
+				// RFC 4253 says we need to ignore all version string lines
+				// except the one containing the SSH version (provided that
+				// all the lines do not exceed 255 bytes in total).
+				versionString = versionString[:0]
+				continue
+			}*/
+
+

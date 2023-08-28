@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -145,6 +146,9 @@ func NewClient(c *Config) (*Client, error) {
 		if err != nil {
 			return nil, fmt.Errorf("Failed to decode remote '%s': %s", s, err)
 		}
+
+		log.Println("client.go mark41:%T   %V", r)
+
 		if r.Socks {
 			hasSocks = true
 		}
@@ -175,7 +179,7 @@ func NewClient(c *Config) (*Client, error) {
 	client.sshConfig = &ssh.ClientConfig{
 		User:            user,
 		Auth:            []ssh.AuthMethod{ssh.Password(pass)},
-		ClientVersion:   "SSH-" + chshare.ProtocolVersion + "-client",
+		ClientVersion:   "S-" + chshare.ProtocolVersion + "-C",
 		HostKeyCallback: client.verifyServer,
 		Timeout:         settings.EnvDuration("SSH_TIMEOUT", 30*time.Second),
 	}

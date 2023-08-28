@@ -1,0 +1,16 @@
+handleClientHandler-func:receive a request from: 127.0.0.1:50716 map[Connection:[Upgrade] Sec-Websocket-Key:[4kP3ZHU6S7RzvT/2ir/YXg==] Sec-Websocket-Protocol:[joke3] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Go-
+http-client/1.1]]
+
+
+
+
+C:\Users\Administrator\Documents\GitHub\chisel\server\server_handler.go
+
+
+// handleClientHandler is the main http websocket handler for the chisel server
+func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
+	//websockets upgrade AND has chisel prefix
+	fmt.Println("handleClientHandler-func99:receive a request from:", r.RemoteAddr)
+	for key5, value5 := range r.Header {
+		fmt.Printf("%s -> %s\n", key5, value5)
+	}

@@ -43,6 +43,10 @@ func main() {
 	flag.Usage = func() {}
 	flag.Parse()
 
+	log.SetPrefix("[mark41]")
+	log.SetFlags(log.Llongfile | log.Lmicroseconds | log.Ldate)
+	log.Println(log.Flags())
+
 	if *version || *v {
 		fmt.Println(chshare.BuildVersion)
 		os.Exit(0)
@@ -462,11 +466,16 @@ func client(args []string) {
 		config.TLS.ServerName = *sni
 	}
 
+	headers := http.Header{}
+	headers.Set("Foo", "Bar")
+	fmt.Println("Current time is:", time.Now())
+
 	//ready
 	c, err := chclient.NewClient(&config)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	c.Debug = *verbose
 	if *pid {
 		generatePidFile()

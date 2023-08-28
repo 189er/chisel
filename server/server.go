@@ -3,12 +3,15 @@ package chserver
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
 	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -62,6 +65,8 @@ func NewServer(c *Config) (*Server, error) {
 		sessions:   settings.NewUsers(),
 	}
 	server.Info = true
+	server.Logger.Debug = true
+	//server.Debug = true
 	server.users = settings.NewUserIndex(server.Logger)
 	if c.AuthFile != "" {
 		if err := server.users.LoadUsers(c.AuthFile); err != nil {
@@ -114,7 +119,7 @@ func NewServer(c *Config) (*Server, error) {
 	server.fingerprint = ccrypto.FingerprintKey(private.PublicKey())
 	//create ssh config
 	server.sshConfig = &ssh.ServerConfig{
-		ServerVersion:    "SSH-" + chshare.ProtocolVersion + "-server",
+		ServerVersion:    "S-" + chshare.ProtocolVersion + "-S",
 		PasswordCallback: server.authUser,
 	}
 	server.sshConfig.AddHostKey(private)
@@ -129,11 +134,30 @@ func NewServer(c *Config) (*Server, error) {
 		}
 		server.reverseProxy = httputil.NewSingleHostReverseProxy(u)
 		//always use proxy host
-		server.reverseProxy.Director = func(r *http.Request) {
+		server.reverseProxy.Director = func(req *http.Request) {
 			//enforce origin, keep path
-			r.URL.Scheme = u.Scheme
-			r.URL.Host = u.Host
-			r.Host = u.Host
+
+			if strings.HasPrefix(req.URL.Path, "/tcpip") {
+				res19 := strings.Split(req.URL.Path, "/")
+				fmt.Printf("%#v  \n", res19)
+				fmt.Printf("%#v \n", res19[1])
+				str4 := res19[1]
+				res22 := strings.Split(str4, "-")
+				sint8, _ := strconv.Atoi(res22[1])
+				if sint8 > 1 && sint8 < 65535 {
+					req.URL.Host = "127.0.0.1:" + strconv.Itoa(sint8)
+				} else {
+					req.URL.Host = u.Host
+				}
+				req.URL.Scheme = "http"
+				req.Host = req.URL.Host
+			} else {
+				// 默认情况下，使用localhost:8080作为后端http服务
+				req.URL.Scheme = u.Scheme
+				req.URL.Host = u.Host
+				req.Host = u.Host
+			}
+			fmt.Printf("\nreceive a request from:%#v  %#v\n", req.RemoteAddr, req.Header)
 		}
 	}
 	//print when reverse tunnelling is enabled
@@ -160,6 +184,7 @@ func (s *Server) Start(host, port string) error {
 // StartContext is responsible for kicking off the http server,
 // and can be closed by cancelling the provided context
 func (s *Server) StartContext(ctx context.Context, host, port string) error {
+	log.Println("Fingerprint:", s.fingerprint)
 	s.Infof("Fingerprint %s", s.fingerprint)
 	if s.users.Len() > 0 {
 		s.Infof("User authentication enabled")

@@ -1,6 +1,7 @@
 package chserver
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"sync/atomic"
@@ -17,15 +18,22 @@ import (
 // handleClientHandler is the main http websocket handler for the chisel server
 func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	//websockets upgrade AND has chisel prefix
+	fmt.Println("handleClientHandler-func99:receive a request from:", r.RemoteAddr)
+	for key5, value5 := range r.Header {
+		fmt.Printf("%s -> %s\n", key5, value5)
+	}
+
 	upgrade := strings.ToLower(r.Header.Get("Upgrade"))
 	protocol := r.Header.Get("Sec-WebSocket-Protocol")
-	if upgrade == "websocket"  {
+	if upgrade == "websocket" {
 		if protocol == chshare.ProtocolVersion {
 			s.handleWebsocket(w, r)
 			return
 		}
 		//print into server logs and silently fall-through
 		s.Infof("ignored client connection using protocol '%s', expected '%s'",
+			protocol, chshare.ProtocolVersion)
+		fmt.Println("ignored client connection using protocol '%s', expected '%s'",
 			protocol, chshare.ProtocolVersion)
 	}
 	//proxy target was provided
@@ -68,6 +76,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 	var user *settings.User
 	if s.users.Len() > 0 {
 		sid := string(sshConn.SessionID())
+		fmt.Println("handleWebsocket-function：" + sid)
 		u, ok := s.sessions.Get(sid)
 		if !ok {
 			panic("bug in ssh auth handler")
@@ -107,6 +116,8 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 			v = "<unknown>"
 		}
 		l.Infof("Client version (%s) differs from server version (%s)",
+			v, chshare.BuildVersion)
+		fmt.Println("Client version (%s) differs from server version (%s)",
 			v, chshare.BuildVersion)
 	}
 	//validate remotes
